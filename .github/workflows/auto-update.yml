@@ -24,23 +24,31 @@ jobs:
       run: ./build-rpglist.sh "$steam_api_key"
 
     - name: Set date env
-      run: echo "TODAY=$(date '+%Y/%m/%d')" >> $GITHUB_ENV
-    
+      run: |
+        echo "TODAY=$(date '+%Y/%m/%d')" >> $GITHUB_ENV
+        echo "FILENAME=rpglist-$(date '+%Y-%m-%d').json" >> $GITHUB_ENV
     - name: commit
       run: |
-        git config --global user.name "Github Action"
-        git config --global user.email "Action@github.com"
+        git config --global user.name "xunpod"
+        git config --global user.email "xunpod@hotmail.com"
         git add .
         git commit -m "auto update" -a
         git push
       env:
         GITHUB_TOKEN: ${{ secrets.UPDATE_TOKEN }}
-    
-    - name: Update Release
+    - name: Update latest Release
       uses: softprops/action-gh-release@v1
       with:
-        files: rpglist-latest.json
+        files: rpglist-latest.csv
         tag_name: latest
+        name: ${{ env.TODAY }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.UPDATE_TOKEN }}
+    - name: Update Everyday Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ${{ env.FILENAME }}
+        tag_name: ${{ env.TODAY }}
         name: ${{ env.TODAY }}
       env:
         GITHUB_TOKEN: ${{ secrets.UPDATE_TOKEN }}
